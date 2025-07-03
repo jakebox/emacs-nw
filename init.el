@@ -2,12 +2,34 @@
 ;;; Jacob Emacs
 ;;;
 
-;; Package setup -----
-(require 'package) (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(package-initialize)
+;; Bootstrap Straight.el
 (setq package-enable-at-startup nil)
-(require 'use-package)
-(setq use-package-always-ensure t)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; Package setup -----
+(let ((nixdir (file-name-as-directory (getenv "NIXCONFIG_DIR")))) 
+  (setq straight-use-package-by-default t
+		straight-current-profile 'base
+		straight-profiles
+		`((base . ,(file-name-concat nixdir "straight.lockfile.default.el"))
+		  (anduril . ,(file-name-concat nixdir "straight.lockfile.anduril.el")))))
+
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
 ;;; Visuals ---------
 (tool-bar-mode -1)
@@ -20,6 +42,8 @@
   :config (setq doom-themes-enable-bold t))
 
 (load-theme 'doom-dark+ t)
+
+(use-package diminish)
 
 ;;; Basics -----------
 (setq use-short-answers t)                      ;; Use "y" and "n" rather than "yes" and "no"
@@ -95,8 +119,12 @@
 (use-package corfu-terminal :config (corfu-terminal-mode))
 
 ;;; Programming Modes ------
-(let ((f (expand-file-name "programming.el" user-emacs-directory)))
-  (when (file-exists-p f) (load (expand-file-name "programming.el" user-emacs-directory))))
+
+(let
+	((straight-current-profile 'anduril)
+	 (f (expand-file-name "programming.el" user-emacs-directory)))
+  (when (file-exists-p f)
+	(load (expand-file-name "programming.el" user-emacs-directory))))
 
 ;;; Org Mode -----------
 (use-package org
@@ -125,9 +153,7 @@
   :diminish which-key-mode
   :init
   (which-key-mode)
-  (which-key-setup-minibuffer)
-  :config
-  (setq which-key-idle-delay 0.3))
+  (which-key-setup-minibuffer))
 
 (use-package evil
   :init
@@ -208,24 +234,7 @@
      "d481904809c509641a1a1f1b1eb80b94c58c210145effc2631c1a7f2e4a2fdf4"
      "77f281064ea1c8b14938866e21c4e51e4168e05db98863bd7430f1352cab294a"
      "5e39e95c703e17a743fb05a132d727aa1d69d9d2c9cde9353f5350e545c793d4"
-     default))
- '(mode-line-format
-   '("  " mode-line-front-space
-	 (:propertize
-	  ("" mode-line-client mode-line-modified mode-line-remote
-	   mode-line-window-dedicated)
-	  display (min-width (6.0)))
-	 "   " mode-line-buffer-identification "   " mode-line-position "     "
-	 evil-mode-line-tag (project-mode-line project-mode-line-format)
-	 (vc-mode vc-mode) "       " mode-line-modes mode-line-misc-info
-	 mode-line-end-spaces))
- '(package-selected-packages
-   '(centered-cursor-mode consult corfu-terminal dhall-mode diminish
-                          direnv doom-themes evil flycheck general
-                          git-gutter golden-ratio haskell-mode
-                          lsp-haskell lsp-ui magit marginalia
-                          modus-themes nix-mode orderless org-roam
-                          org-roam-ui super-save vertico)))
+     default)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
