@@ -209,6 +209,16 @@
      "77f281064ea1c8b14938866e21c4e51e4168e05db98863bd7430f1352cab294a"
      "5e39e95c703e17a743fb05a132d727aa1d69d9d2c9cde9353f5350e545c793d4"
      default))
+ '(mode-line-format
+   '("  " mode-line-front-space
+	 (:propertize
+	  ("" mode-line-client mode-line-modified mode-line-remote
+	   mode-line-window-dedicated)
+	  display (min-width (6.0)))
+	 "   " mode-line-buffer-identification "   " mode-line-position "     "
+	 evil-mode-line-tag (project-mode-line project-mode-line-format)
+	 (vc-mode vc-mode) "       " mode-line-modes mode-line-misc-info
+	 mode-line-end-spaces))
  '(package-selected-packages
    '(centered-cursor-mode consult corfu-terminal dhall-mode diminish
                           direnv doom-themes evil flycheck general
